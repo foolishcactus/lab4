@@ -1,25 +1,36 @@
-`default_nettype none
-
+//`default_nettype none
+//new
 /* note: paddle coordinate range:
    80 pixels wide, 25 pixels high
    row, x: [555, 579]
    column, y: [50, 750 - 80] // in between walls
 */
-module Paddle(
-  input logic [9:0] col, row, // vga display coordinate
-  input update, // whether to update the position of paddle
-  input clear, // control point from FSM
-  input  logic movePaddle, // control point from FSM (high when in PLAY state)
-  input clock_40MHz,
-  input logic btn2_sync, btn3_sync,
-  input logic [9:0] ballX, ballY, // ball x, y coordinate input
-  input logic ballVUp, ballVRight, // current moving direction of the ball
-  output logic ballXFlip, ballYFlip, // 0 and 1, if collision with wall should be changing x or y direction of ball
-  output logic paddle // output to Color module, if the wall should be drawn
+// Coordinate naming in the code: X is column and Y is row.
+module Paddle (
+    input logic [9:0] col, row, // vga display coordinate
+    input logic update, // whether to update the position of paddle
+    input logic clear, // control point from FSM
+    input logic movePaddle, // control point from FSM (high when in PLAY state)
+    input logic clock_40MHz,
+    input logic btn2_sync, btn3_sync,
+    input logic [9:0] ballX, ballY, // ball x, y coordinate input
+    input logic ballVUp, ballVRight, // current moving direction of the ball
+    output logic ballXFlip, ballYFlip, // 0 and 1, if collision with wall should be changing x or y direction of ball
+    output logic paddle // output to Color module, if the wall should be drawn
 );
+
     logic [9:0] paddleX, nextPaddleX, paddleXInput;
-    logic paddleColumns, paddleRows;
     logic paddleXMatch, paddleYMatch;
+
+    logic [10:0] x, y;
+    logic [10:0] nextBallX, nextBallY;
+    logic [10:0] ballRight, ballBottom;
+    logic [10:0] paddleLeft, paddleRight;
+
+    logic overlapPaddleX, overlapPaddleY;
+    logic nearLeft, nearRight, nearTop;
+    logic collideLeft, collideRight, collideTop;
+    logic collisionEnabled;
 
     Mux2to1 #(10) nextPosition ( // next x coordinte, taking into account the default starting position
         .I0(nextPaddleX),
@@ -29,8 +40,9 @@ module Paddle(
     );
 
     // paddle x coordinate register
-    Register #(10) xCoor(
-        .en((update & movePaddle) | clear), .clear(0), // never clearing because clear will set out x-coor to 0
+    Register #(10) xCoor (
+        .en((update & movePaddle) | clear),
+        .clear(1'b0), // never clearing because clear will set out x-coor to 0
         .D(paddleXInput),
         .clock(clock_40MHz),
         .Q(paddleX)
@@ -71,44 +83,91 @@ module Paddle(
 
     assign paddle = paddleXMatch & paddleYMatch;
 
-
     // colision with ball detection
 
     // the next possition of ball
-    logic [9:0] paddleRight;
-    logic [9:0] leftTouchX;
-    logic collideLeft, collideRight, collideTop;
-    logic overlapPaddleX, overlapPaddleY, ballAbovePaddle;
+    assign x = ballX;
+    assign y = ballY;
 
-    assign paddleRight = paddleX + 10'd79;
+    assign paddleLeft = paddleX;
+    assign paddleRight = paddleLeft + 11'd79;
 
-    // ball collides with left or right with paddle
-    RangeCheck #(10) leftCollide (
-        .val(ballX + 10'd5),
-        .low(paddleX - 10'd1),
-        .high(paddleX + 10'd39), // plus half of the width of paddle
-        .is_between(collideLeft)
+    assign ballRight = x + 11'd5;
+    assign ballBottom = y + 11'd5;
+
+    // Calculate the proposed position before bouncing.
+    always_comb begin
+        if (ballVRight)
+            nextBallX = x + 11'd1;
+        else if (x > 0)
+            nextBallX = x - 11'd1;
+        else
+            nextBallX = 11'd0;
+
+        if (ballVUp) begin
+            if (y >= 2)
+                nextBallY = y - 11'd2;
+            else
+                nextBallY = 11'd0;
+        end
+        else
+            nextBallY = y + 11'd2;
+    end
+
+    // Horizontal overlap with the paddle.
+    RangeCheck #(11) horizontalOverlap (
+        .val(nextBallX),
+        .low(paddleLeft - 11'd5),
+        .high(paddleRight),
+        .is_between(overlapPaddleX)
     );
 
-    RangeCheck #(10) rightCollide (
-        .val(ballX),
-        .low(paddleRight - 10'd39),
-        .high(paddleRight + 10'd1),
-        .is_between(collideRight)
+    // Vertical overlap with paddle rows 555 through 579.
+    RangeCheck #(11) verticalOverlap (
+        .val(nextBallY),
+        .low(11'd550),
+        .high(11'd579),
+        .is_between(overlapPaddleY)
+    );
+
+    // ball collides with left or right with paddle
+    Comparator #(11) leftFace (
+        .A(ballRight),
+        .B(paddleLeft - 11'd1),
+        .AeqB(nearLeft)
+    );
+
+    Comparator #(11) rightFace (
+        .A(x),
+        .B(paddleRight + 11'd1),
+        .AeqB(nearRight)
     );
 
     // ball collides with paddle's top from above
-    RangeCheck #(10) topCollide (
-        .val(ballY+10'd5),
-        .low(10'd554),
-        .high(10'd579),
-        .is_between(collideTop)
+    RangeCheck #(11) topFace (
+        .val(ballBottom),
+        .low(11'd553),
+        .high(11'd554),
+        .is_between(nearTop)
     );
 
-    assign ballXFlip = (ballVRight  & collideLeft) |
-                       (~ballVRight & collideRight);
+    // Side hits require vertical overlap.
+    assign collideLeft =
+        ballVRight && nearLeft && overlapPaddleY;
 
-    assign ballYFlip = ~ballVUp & collideTop;
+    assign collideRight =
+        !ballVRight && nearRight && overlapPaddleY;
 
+    // Top hits require horizontal overlap.
+    assign collideTop =
+        !ballVUp && nearTop && overlapPaddleX;
 
-endmodule: Paddle
+    assign collisionEnabled = movePaddle && !clear;
+
+    assign ballXFlip =
+        collisionEnabled && (collideLeft || collideRight);
+
+    assign ballYFlip =
+        collisionEnabled && collideTop;
+
+endmodule : Paddle

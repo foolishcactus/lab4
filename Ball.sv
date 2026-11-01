@@ -1,4 +1,4 @@
-`default_nettype none
+//`default_nettype none
 
 module Ball (
   input logic [9:0] row, col,
@@ -93,10 +93,3 @@ module Ball (
   // if ball is out of lower bonud -> lose one life
   assign ballMiss = ~ballVUp & (ballY >= 10'd594);
 endmodule : Ball
-
-
-
-
-//combinational logic for checking if ball should be high based on col and row (use offsetcheck)
-
-//combination logic for changing register velocities, and updating the coordinate registers
