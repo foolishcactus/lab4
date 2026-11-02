@@ -1,9 +1,9 @@
 //`default_nettype none
 
 module ChipInterface (
-    input logic CLOCK_100,
-    input logic [3:0] BTN,
-    input logic [15:0] SW,
+    input  logic CLOCK_100,
+    input  logic [3:0] BTN,
+    input  logic [15:0] SW,
 
     output logic [3:0] D2_AN, D1_AN,
     output logic [7:0] D2_SEG, D1_SEG,
@@ -19,8 +19,8 @@ module ChipInterface (
     logic [9:0] row, col;
     logic HS, VS, blank;
     logic game_update;
-    logic [7:0] red, green, blue;
 
+    logic [7:0] red, green, blue;
     logic [3:0] score;
     logic lifeLost, noLives, allBroken;
 
@@ -60,6 +60,7 @@ module ChipInterface (
 
     VGA vga (
         .clock_40MHz(clock_40MHz),
+        .reset(reset),
         .HS(HS),
         .VS(VS),
         .blank(blank),
@@ -67,8 +68,10 @@ module ChipInterface (
         .col(col)
     );
 
+    // VGA exposes coordinates only for the 800x600 visible area.
+    // Use its last visible pixel as the once-per-frame game tick.
     assign game_update =
-        (row == 10'd600) && (col == 10'd800);
+        !blank && (row == 10'd599) && (col == 10'd799);
 
     Breakout game (
         .clock_40MHz(clock_40MHz),
@@ -77,6 +80,7 @@ module ChipInterface (
 
         .row(row),
         .col(col),
+
         .btn1_sync(btn1_sync),
         .btn2_sync(btn2_sync),
         .btn3_sync(btn3_sync),
@@ -84,16 +88,34 @@ module ChipInterface (
         .red(red),
         .green(green),
         .blue(blue),
+
         .score(score),
         .lifeLost(lifeLost),
         .noLives(noLives),
         .allBroken(allBroken)
     );
 
-    assign D2_AN = 4'b1111;
-    assign D1_AN = 4'b1111;
-    assign D2_SEG = 8'hFF;
-    assign D1_SEG = 8'hFF;
+    EightSevenSegmentDisplays lives_display (
+        .HEX7(4'd0),
+        .HEX6(4'd0),
+        .HEX5(4'd0),
+        .HEX4(4'd0),
+        .HEX3(4'd0),
+        .HEX2(4'd0),
+        .HEX1(4'd0),
+        .HEX0(score),
+
+        .CLOCK_100(CLOCK_100),
+        .reset(reset),
+
+        .dec_points(8'b0000_0000),
+        .blank(8'b1111_1110),
+
+        .D2_AN(D2_AN),
+        .D1_AN(D1_AN),
+        .D2_SEG(D2_SEG),
+        .D1_SEG(D1_SEG)
+    );
 
     hdmi_tx_0 vga_to_hdmi (
         .pix_clk(clock_40MHz),
@@ -104,6 +126,7 @@ module ChipInterface (
         .red(red),
         .green(green),
         .blue(blue),
+
         .hsync(HS),
         .vsync(VS),
         .vde(~blank),
@@ -119,4 +142,4 @@ module ChipInterface (
         .TMDS_DATA_N(HDMI_TX_N)
     );
 
-endmodule
+endmodule : ChipInterface
