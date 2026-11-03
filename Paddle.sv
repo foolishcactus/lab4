@@ -21,14 +21,14 @@ module Paddle (
 
     logic paddleXMatch, paddleYMatch;
 
-    logic [10:0] x, y;
-    logic [10:0] nextBallX, nextBallY;
-    logic [10:0] ballRight, ballBottom;
+    logic [9:0] x, y;
+    logic [9:0] nextBallX, nextBallY;
+    logic [9:0] ballRight, ballBottom;
     // b/c paddle is moving, taking into account the exact position at the frame update timing 
     // (at update, position register changes at clock edge,
     // we need that new position to compare with our ball new position)
-    logic [10:0] upToDatePaddleLeft;
-    logic [10:0] upToDatePaddleRight;
+    logic [9:0] upToDatePaddleLeft;
+    logic [9:0] upToDatePaddleRight;
 
     logic overlapPaddleX, overlapPaddleY;
     logic nearLeft, nearRight, nearTop;
@@ -82,28 +82,28 @@ module Paddle (
     assign paddle = paddleXMatch && paddleYMatch;
 
     // Predict the ball's next position before any bounce.
-    assign x = {1'b0, ballX};
-    assign y = {1'b0, ballY};
+    assign x = ballX;
+    assign y = ballY;
 
-    assign ballRight  = x + 11'd5;
-    assign ballBottom = y + 11'd5;
+    assign ballRight  = x + 10'd5;
+    assign ballBottom = y + 10'd5;
 
     always_comb begin
         if (ballVRight)
-            nextBallX = x + 11'd1;
-        else if (x > 11'd0)
-            nextBallX = x - 11'd1;
+            nextBallX = x + 10'd1;
+        else if (x > 10'd0)
+            nextBallX = x - 10'd1;
         else
-            nextBallX = 11'd0;
+            nextBallX = 10'd0;
 
         if (ballVUp) begin
-            if (y >= 11'd2)
-                nextBallY = y - 11'd2;
+            if (y >= 10'd2)
+                nextBallY = y - 10'd2;
             else
-                nextBallY = 11'd0;
+                nextBallY = 10'd0;
         end
         else begin
-            nextBallY = y + 11'd2;
+            nextBallY = y + 10'd2;
         end
     end
 
@@ -111,46 +111,46 @@ module Paddle (
     // should use the new paddle position for collision check
     assign upToDatePaddleLeft =
         (update && movePaddle)
-        ? {1'b0, nextPaddleX}
-        : {1'b0, paddleX};
+        ? nextPaddleX
+        : paddleX;
 
     assign upToDatePaddleRight =
-        upToDatePaddleLeft + 11'd79;
+        upToDatePaddleLeft + 10'd79;
 
     // Overlap of the proposed ball position and paddle.
     // Proposed ball position overlaps the 80-pixel paddle.
-    OffsetCheck #(11) paddleXOverlapCheck (
+    OffsetCheck #(10) paddleXOverlapCheck (
         .val(nextBallX),
-        .low(upToDatePaddleLeft - 11'd5),
-        .delta(11'd84),
+        .low(upToDatePaddleLeft - 10'd5),
+        .delta(10'd84),
         .is_between(overlapPaddleX)
     );
 
-    RangeCheck #(11) paddleYOverlapCheck (
+    RangeCheck #(10) paddleYOverlapCheck (
         .val(nextBallY),
-        .low(11'd550),
-        .high(11'd579),
+        .low(10'd550),
+        .high(10'd579),
         .is_between(overlapPaddleY)
     );
 
     // Horizontal speed is 1 pixel per update.
-    Comparator #(11) paddleLeftTouchCheck (
-        .A(ballRight + 11'd1),
+    Comparator #(10) paddleLeftTouchCheck (
+        .A(ballRight + 10'd1),
         .B(upToDatePaddleLeft),
         .AeqB(nearLeft)
     );
 
-    Comparator #(11) paddleRightTouchCheck (
+    Comparator #(10) paddleRightTouchCheck (
         .A(x),
-        .B(upToDatePaddleRight + 11'd1),
+        .B(upToDatePaddleRight + 10'd1),
         .AeqB(nearRight)
     );
 
     // Vertical speed is 2 pixels per update.
-    RangeCheck #(11) paddleTopTouchCheck (
+    RangeCheck #(10) paddleTopTouchCheck (
         .val(ballBottom),
-        .low(11'd553),
-        .high(11'd554),
+        .low(10'd553),
+        .high(10'd554),
         .is_between(nearTop)
     );
 
