@@ -1,0 +1,104 @@
+{
+    "std": [
+        "std",
+        "reYIK",
+        "module",
+        1
+    ],
+    "Wall": [
+        "Wall",
+        "Bz3bT",
+        "module",
+        2
+    ],
+    "Ball": [
+        "Ball",
+        "jpYSR",
+        "module",
+        3
+    ],
+    "Paddle": [
+        "Paddle",
+        "qW1Lt",
+        "module",
+        4
+    ],
+    "Comparator": [
+        "Comparator",
+        "ZPSNi",
+        "module",
+        5
+    ],
+    "MagComp": [
+        "MagComp",
+        "vaLRj",
+        "module",
+        6
+    ],
+    "Subtracter": [
+        "Subtracter",
+        "pcAkE",
+        "module",
+        7
+    ],
+    "Multiplexer": [
+        "Multiplexer",
+        "UxyT3",
+        "module",
+        8
+    ],
+    "Decoder": [
+        "Decoder",
+        "t8TcA",
+        "module",
+        9
+    ],
+    "Counter": [
+        "Counter",
+        "Nsh6f",
+        "module",
+        10
+    ],
+    "ShiftRegisterSIPO": [
+        "ShiftRegisterSIPO",
+        "QtqVB",
+        "module",
+        11
+    ],
+    "ShiftRegisterPIPO": [
+        "ShiftRegisterPIPO",
+        "w133T",
+        "module",
+        12
+    ],
+    "BarrelShiftRegister": [
+        "BarrelShiftRegister",
+        "ts568",
+        "module",
+        13
+    ],
+    "Synchronizer": [
+        "Synchronizer",
+        "mLbx7",
+        "module",
+        14
+    ],
+    "BusDriver": [
+        "BusDriver",
+        "Bt4nZ",
+        "module",
+        15
+    ],
+    "Memory": [
+        "Memory",
+        "f0K8C",
+        "module",
+        16
+    ],
+    "...MASTER...": [
+        "SIM",
+        "amcQw",
+        "module",
+        17
+    ]
+}

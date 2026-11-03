@@ -1,0 +1,26 @@
+#-----------------------------------------------------------
+# Vivado v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Mon Nov  2 19:11:19 2026
+# Process ID         : 949959
+# Current directory  : /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2
+# Command line       : vivado
+# Log file           : /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/vivado.log
+# Journal file       : /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/vivado.jou
+# Running On         : hh-1305a-16.lan.local.cmu.edu
+# Platform           : rhel
+# Operating System   : Red Hat Enterprise Linux 9.8 (Plow)
+# Processor Detail   : AMD Ryzen Threadripper PRO 9945WX 12-Cores
+# CPU Frequency      : 4949.945 MHz
+# CPU Physical cores : 12
+# CPU Logical cores  : 24
+# Host memory        : 66315 MB
+# Swap memory        : 17179 MB
+# Total Virtual      : 83495 MB
+# Available Virtual  : 72942 MB
+#-----------------------------------------------------------
+start_gui
+open_project /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/breakout/lab4/lab4.xpr
+update_compile_order -fileset sources_1
