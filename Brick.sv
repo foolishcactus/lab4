@@ -1,5 +1,14 @@
 //`default_nettype none
 
+/*
+ Detection of collision logic:
+ based on both current ball position and next ball position:
+
+ 1) current ball position determines currently near brick,
+ 2) next ball position tells us the ball will really overlap with the wall after the next time step
+ -> avoid false collision if the ball is moving diagonally
+*/
+
 module brick #(
     parameter LEFT_COL = 70,
     parameter TOP_ROW = 100,
@@ -55,7 +64,9 @@ module brick #(
             nextBallY = y + 11'd2;
     end
 
-
+    // design choice:
+    // use comparator for near brick x axis b/c horizontal velocity of ball is 1
+    // use rangecheck for near brick y axis b/c vertical velocity of ball is 2
     RangeCheck #(11) horizontalOverlap (
         .val(nextBallX),
         .low(LEFT_COL - 5),
@@ -70,26 +81,26 @@ module brick #(
         .is_between(overlapBrickY)
     );
 
-    Comparator #(11) leftFace (
+    Comparator #(11) leftTouch (
         .A(ballRight),
         .B(LEFT_COL - 1),
         .AeqB(nearLeft)
     );
 
-    Comparator #(11) rightFace (
+    Comparator #(11) rightTouch (
         .A(x),
         .B(LEFT_COL + WIDTH),
         .AeqB(nearRight)
     );
 
-    RangeCheck #(11) topFace (
+    RangeCheck #(11) topTouch (
         .val(ballBottom),
         .low(TOP_ROW - 2),
         .high(TOP_ROW - 1),
         .is_between(nearTop)
     );
 
-    RangeCheck #(11) bottomFace (
+    RangeCheck #(11) bottomTouch (
         .val(y),
         .low(TOP_ROW + HEIGHT),
         .high(TOP_ROW + HEIGHT + 1),
@@ -117,6 +128,8 @@ module brick #(
     assign ballYFlip =
         collisionEnabled && (collideTop || collideBottom);
 
+    // Need update as condition because we only want to 
+    // update brick active/inactive once per frame
     assign loadBroken =
         update && !clear && (ballXFlip || ballYFlip);
 

@@ -1,0 +1,32 @@
+#-----------------------------------------------------------
+# Vivado v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Mon Nov  2 19:25:54 2026
+# Process ID         : 1104871
+# Current directory  : /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2
+# Command line       : vivado
+# Log file           : /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/vivado.log
+# Journal file       : /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/vivado.jou
+# Running On         : hh-1305a-23.lan.local.cmu.edu
+# Platform           : rhel
+# Operating System   : Red Hat Enterprise Linux 9.8 (Plow)
+# Processor Detail   : AMD Ryzen Threadripper PRO 9945WX 12-Cores
+# CPU Frequency      : 5420.887 MHz
+# CPU Physical cores : 12
+# CPU Logical cores  : 24
+# Host memory        : 66315 MB
+# Swap memory        : 17179 MB
+# Total Virtual      : 83495 MB
+# Available Virtual  : 74112 MB
+#-----------------------------------------------------------
+start_gui
+open_project /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/breakout/lab4/lab4.xpr
+update_compile_order -fileset sources_1
+add_files -norecurse {/afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/ChipInterface.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/FSM.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/Score.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/seven_segment.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/Display.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/Bricks.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/Paddle.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/Color.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/library.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/Wall.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/Brick.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/Ball.sv /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/VelocityUpdate.sv}
+update_compile_order -fileset sources_1
+export_ip_user_files -of_objects  [get_files /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/VelocityUpdate.sv] -no_script -reset -force -quiet
+remove_files  /afs/andrew.cmu.edu/usr22/jolenec/private/F26_18240/lab/lab4_phase2/VelocityUpdate.sv
+launch_runs impl_1 -to_step write_bitstream -jobs 10
+wait_on_run impl_1

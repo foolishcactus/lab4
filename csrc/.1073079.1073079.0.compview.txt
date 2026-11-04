@@ -1,0 +1,6 @@
+Command exited with non-zero status 3
+{"comelab":{"timestamp_begin":1793573109.870865793, "rt":2.39, "ut":0.00, "st":0.03}}
+{"SNPS_VCS_INTERNAL_ROOT_START_TIME": 1793573109.340865216}
+{"VCS_COMP_START_TIME": 1793573109.340865216}
+{"VCS_COMP_END_TIME": 1793573112.342164925}
+{"VCS_USER_OPTIONS": "-sverilog fsm.sv"}
