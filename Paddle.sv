@@ -1,5 +1,8 @@
 //`default_nettype none
 
+//Paddle module handles movement and collisios with the paddle
+//and outputs velocity changes accordingly
+
 module Paddle (
     input  logic [9:0] col, row,
     input  logic update,
@@ -35,8 +38,8 @@ module Paddle (
     logic collideLeft, collideRight, collideTop;
     logic collisionEnabled;
 
-    // Paddle movement: 8 pixels per update.
-    // The 80-pixel paddle stays between columns 50 and 749.
+    // paddle movement: 8 pixels per update
+    // paddle stays between columns 50 and 749.
     always_comb begin
         nextPaddleX = paddleX;
 
@@ -64,7 +67,7 @@ module Paddle (
         .Q(paddleX)
     );
 
-    // Draw the current registered paddle position.
+    // draw the current registered paddle position
     OffsetCheck #(10) paddleColumnsCheck (
         .val(col),
         .low(paddleX),
@@ -81,7 +84,7 @@ module Paddle (
 
     assign paddle = paddleXMatch && paddleYMatch;
 
-    // Predict the ball's next position before any bounce.
+    // predict the ball's next position before any bounce
     assign x = ballX;
     assign y = ballY;
 
@@ -118,7 +121,7 @@ module Paddle (
         upToDatePaddleLeft + 10'd79;
 
     // Overlap of the proposed ball position and paddle.
-    // Proposed ball position overlaps the 80-pixel paddle.
+    // Proposed ball position overlaps the 80-pixel paddle
     OffsetCheck #(10) paddleXOverlapCheck (
         .val(nextBallX),
         .low(upToDatePaddleLeft - 10'd5),
@@ -133,7 +136,7 @@ module Paddle (
         .is_between(overlapPaddleY)
     );
 
-    // Horizontal speed is 1 pixel per update.
+    // horizontal speed is 1 pixel per update
     Comparator #(10) paddleLeftTouchCheck (
         .A(ballRight + 10'd1),
         .B(upToDatePaddleLeft),
@@ -146,7 +149,7 @@ module Paddle (
         .AeqB(nearRight)
     );
 
-    // Vertical speed is 2 pixels per update.
+    // vertical speed is 2 pixels per update
     RangeCheck #(10) paddleTopTouchCheck (
         .val(ballBottom),
         .low(10'd553),

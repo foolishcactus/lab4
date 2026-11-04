@@ -1,80 +1,145 @@
-module Task1_tb;
+//`default_nettype none
 
-  logic [3:0] val, low, high;
-  logic[3:0] val2, low2, delta;
-  logic is_between, is_between2;
+module range_offset_test ();
 
-  RangeCheck #(4) dut(
-    .val(val), 
-    .low(low), 
-    .high(high),
-    .is_between(is_between)
-  );
+    logic [2:0] val, low, high, delta;
+    logic range_result, offset_result;
+    logic expected_range, expected_offset;
 
-  OffsetCheck #(4) dut2(
-    .val(val2), 
-    .low(low2), 
-    .delta(delta),
-    .is_between(is_between2)
-  );
+    logic [3:0] test_num;
+    logic [15:0] errors;
 
-  initial begin
-    val = 4'd5;
-    low = 4'd3;
-    high = 4'd6;
+    RangeCheck #(.WIDTH(3)) range_dut (
+        .val(val),
+        .low(low),
+        .high(high),
+        .is_between(range_result)
+    );
 
-    #10
-    //checks if 5 is >3 and <6
-    if (!is_between)
-        $display("ERROR 1: val=%d low=%d high=%d", val, low, high);
-    
-    val = 4'd10;
-    low = 4'd3;
-    high = 4'd6;
-    #10
+    OffsetCheck #(.WIDTH(3)) offset_dut (
+        .val(val),
+        .low(low),
+        .delta(delta),
+        .is_between(offset_result)
+    );
 
-    //checks if 10 is >3 and <6
-    if(is_between)
-      $display("ERROR 2: val=%d low=%d high=%d", val, low, high);
+    initial begin
+        val = 3'd0;
+        low = 3'd0;
+        high = 3'd0;
+        delta = 3'd0;
+        errors = 16'd0;
 
-    val = 4'd5;
-    low = 4'd5;
-    high = 4'd5;
-    #10
+        for (test_num = 4'd0;
+             test_num < 4'd9;
+             test_num = test_num + 4'd1) begin
 
-    //checks if 5 is > 5 and < 5
-    if(!is_between)
-      $display("ERROR 3: val=%d low=%d high=%d", val, low, high);
+            // Default: [2, 5] for both modules
+            low = 3'd2;
+            high = 3'd5;
+            delta = 3'd3;
+            val = 3'd0;
+            expected_range = 1'b0;
+            expected_offset = 1'b0;
 
-    //checking offset checker
-    val2 = 4'd5;
-    low = 4'd5;
-    delta = 4'd10;
+            case (test_num)
+                // Below the range
+                4'd0: val = 3'd1;
 
-    #10
+                // At the lower boundary
+                4'd1: begin
+                    val = 3'd2;
+                    expected_range = 1'b1;
+                    expected_offset = 1'b1;
+                end
 
-    //checks if 5 is >5 <15
-    if(!is_between2)
-      $display("ERROR 4: val=%d low=%d high=%d", val2, low2, delta);
+                // Inside the range
+                4'd2: begin
+                    val = 3'd3;
+                    expected_range = 1'b1;
+                    expected_offset = 1'b1;
+                end
 
-    val2 = 4'd5;
-    low = 4'd1;
-    delta = 4'd3;
-    #10
+                // At the upper boundary
+                4'd3: begin
+                    val = 3'd5;
+                    expected_range = 1'b1;
+                    expected_offset = 1'b1;
+                end
 
-    //checks if 5 is >1 and <4
-    if(is_between2)
-      $display("ERROR 5: val=%d low=%d high=%d", val2, low2, delta);
+                // Above the range
+                4'd4: val = 3'd6;
 
-    val2 = 4'd5;
-    low = 4'd1;
-    delta = 4'd4;
-    #10
+                // Equal bounds and zero delta: matching value
+                4'd5: begin
+                    low = 3'd4;
+                    high = 3'd4;
+                    delta = 3'd0;
+                    val = 3'd4;
+                    expected_range = 1'b1;
+                    expected_offset = 1'b1;
+                end
 
-    //checks if 5 is >1 and <5
-    if(is_between2)
-      $display("ERROR 6: val=%d low=%d high=%d", val2, low2, delta);
-    
-  end
-    
+                // Equal bounds and zero delta: nonmatching value
+                4'd6: begin
+                    low = 3'd4;
+                    high = 3'd4;
+                    delta = 3'd0;
+                    val = 3'd5;
+                end
+
+                // Reversed bounds; OffsetCheck overflows to high=1
+                4'd7: begin
+                    low = 3'd6;
+                    high = 3'd1;
+                    delta = 3'd3;
+                    val = 3'd6;
+                end
+
+                // Full range, including the maximum input
+                4'd8: begin
+                    low = 3'd0;
+                    high = 3'd7;
+                    delta = 3'd7;
+                    val = 3'd7;
+                    expected_range = 1'b1;
+                    expected_offset = 1'b1;
+                end
+            endcase
+
+            #1;
+
+            if (range_result !== expected_range) begin
+                errors = errors + 16'd1;
+                $display(
+                    "ERROR: RangeCheck test=%d val=%d low=%d high=%d",
+                    test_num, val, low, high
+                );
+                $display(
+                    "Expected=%b Actual=%b",
+                    expected_range, range_result
+                );
+            end
+
+            if (offset_result !== expected_offset) begin
+                errors = errors + 16'd1;
+                $display(
+                    "ERROR: OffsetCheck test=%d val=%d low=%d delta=%d",
+                    test_num, val, low, delta
+                );
+                $display(
+                    "Expected=%b Actual=%b",
+                    expected_offset, offset_result
+                );
+            end
+        end
+
+        if (errors == 16'd0)
+            $display("PASS: All 9 tests for each module passed");
+        else
+            $display("FAIL: %d failed checks", errors);
+
+        $finish;
+    end
+
 endmodule

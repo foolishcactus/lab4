@@ -1,5 +1,7 @@
 //`default_nettype none
 
+//FSM for controlling the game states
+
 module fsm (
     input logic CLOCK_40MHZ,
     input logic bricks_all_broken,
@@ -8,7 +10,6 @@ module fsm (
     input logic update,
     input logic ball_miss, // connect to the ball_miss output of the ball module
     input logic [3:0] life_cnt, // from the life_cnt output of the score module
-    // Connected to the existing Score module's score output.
 
     output logic score_deduct, // output to score module
     // paddle and ball control points: position should be freeze when not in PLAY state
@@ -24,8 +25,6 @@ module fsm (
     logic previousStart, startPressed;
 
     // output logic
-    // One request for each rising edge of the synchronized serve input.
-    // Holding serve after restarting cannot immediately serve again.
     assign startPressed = start_game && !previousStart;
 
     assign moveBall = (curState == PLAY) && !reset;
@@ -37,11 +36,11 @@ module fsm (
     assign score_deduct = moveBall && update && ball_miss
                         && (life_cnt != 4'd0) && !bricks_all_broken;
 
-    // Reset ball/paddle while waiting and on every accepted miss.
-    // Including the miss resets the ball even when this is the last life.
+    // reset ball/paddle while waiting and on every accepted miss
+    // including the miss resets the ball even when this is the last life
     assign clear = reset || (curState == INIT) || score_deduct;
 
-    // Only a whole-game restart restores bricks and all three lives.
+    // only a whole-game restart restores bricks and all three lives.
     assign new_game = !reset && startPressed
                    && ((curState == WIN) || (curState == LOSE));
 

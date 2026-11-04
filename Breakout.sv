@@ -1,5 +1,8 @@
 //`default_nettype none
 
+//Orcherstrator module that wires everything together
+//Keeps the chip interface focused on interfacing with the FPGA
+
 module Breakout (
     input logic clock_40MHz,
     input logic reset,
@@ -104,7 +107,7 @@ module Breakout (
         .wall(displayWall)
     );
 
-    bricks bricks_inst (
+    Bricks bricks_inst (
         .col(col),
         .row(row),
         .update(game_update),

@@ -1,5 +1,7 @@
 //`default_nettype none
 
+//Handles Ball Logic, and processing external velocity inputs
+
 module Ball (
   input logic [9:0] row, col,
   input logic updateDisplay,
@@ -27,7 +29,8 @@ module Ball (
   assign xFlip = paddleXFlip | bricksXFlip | wallXFlip;
   assign yFlip = paddleYFlip | bricksYFlip | wallYFlip;
   // only calculate nextBallVRight during update to avoid constantly flipping direction
-  // that being said, the next position calculation for ball also needs to be based on next velocity
+  // that being said, the next position calculation 
+  //for ball also needs to be based on next velocity
   assign nextBallVRight = updateDisplay ? (ballVRight ^ xFlip) : ballVRight;  
   assign nextBallVUp = updateDisplay ?  (ballVUp ^ yFlip) : ballVUp;
   assign nextBallX =  (nextBallVRight)? ballX + 10'd1: ballX - 10'd1;

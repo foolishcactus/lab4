@@ -1,15 +1,7 @@
 //`default_nettype none
 
-/*
- Detection of collision logic:
- based on both current ball position and next ball position:
 
- 1) current ball position determines currently near brick,
- 2) next ball position tells us the ball will really overlap with the wall after the next time step
- -> avoid false collision if the ball is moving diagonally
-*/
-
-module brick #(
+module Brick #(
     parameter LEFT_COL = 70,
     parameter TOP_ROW = 100,
     parameter WIDTH = 100,
@@ -128,7 +120,6 @@ module brick #(
     assign ballYFlip =
         collisionEnabled && (collideTop || collideBottom);
 
-    // Need update as condition because we only want to 
     // update brick active/inactive once per frame
     assign loadBroken =
         update && !clear && (ballXFlip || ballYFlip);

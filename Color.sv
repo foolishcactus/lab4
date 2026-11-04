@@ -1,5 +1,7 @@
 //`defaultnettype none
 
+//Color module outputs the correct color pattern based on the object
+
 module Color (
     input logic ball, wall, paddle,
     input logic yellow_brick, purple_brick,

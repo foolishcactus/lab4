@@ -1,5 +1,7 @@
 //`default_nettype none
 
+//Score module keeps track of score ensures and determines when lives are out
+
 module Score (
     input logic clock_40MHz,
     input logic clear,       
